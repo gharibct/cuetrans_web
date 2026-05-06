@@ -1,0 +1,32 @@
+queries:
+  CoreConstraintService: |
+    select servicequery as SERVICEQUERY,
+      processtype AS PROCESSTYPE,nvl(comboname,'x') AS COMBONAME,
+      querytype as QUERYTYPE,nvl(errorid,'x') AS ERRORID, 
+      nvl(successid,'x') AS SUCCESSID 
+    from  Constraint_querytable 
+    WHERE servicename='#methodName#' order by seqno
+  CoreAdminService: |
+    select servicequery as SERVICEQUERY,
+      processtype AS PROCESSTYPE,nvl(comboname,'x') AS COMBONAME,
+      querytype as QUERYTYPE,nvl(errorid,'x') AS ERRORID, 
+      nvl(successid,'x') AS SUCCESSID 
+    from  COMPANYMST_QUERYTABLE
+    WHERE servicename='#methodName#' order by seqno
+  CoreItemService: |
+    Select Servicequery As Servicequery,Processtype As Processtype,
+          nvl(Comboname,'x') As Comboname,
+          querytype as QUERYTYPE,nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID
+    from  item_QUERYTABLE qt ,
+          item_COMMONQT cqt
+    where qt.groupname = cqt.groupname
+    and   cqt.servicename = '#methodName#'
+    order by cqt.seqno,qt.seqno
+  CoreCustomerService: |
+    select  distinct seqno,servicequery as SERVICEQUERY,processtype AS PROCESSTYPE,
+            nvl(comboname,'x') AS COMBONAME,querytype as QUERYTYPE,  
+            nvl(errorid,'x') AS ERRORID, nvl(successid,'x') AS SUCCESSID 
+    from    customer_querytable 
+    WHERE   servicename='#methodName#' 
+    order by seqno

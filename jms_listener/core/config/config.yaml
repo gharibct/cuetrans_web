@@ -1,0 +1,5 @@
+database:
+  user: "PDO_STAGE_COE_TMS_APP"
+  dsn: "cuetranspdoprod.cdmgnqqkccnr.eu-central-1.rds.amazonaws.com:1521/orcl"
+  min_connections: 5
+  max_connections: 20
