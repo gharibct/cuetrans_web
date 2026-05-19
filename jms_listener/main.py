@@ -81,7 +81,7 @@ if __name__ == "__main__":
         "main:app",
         host="0.0.0.0",
         port=8000,
-        reload=True,
+        reload=False,
         reload_includes=["*.py", "*.yaml"],
         reload_excludes=["*.log", "*.log.*", "__pycache__/*"],
     )

@@ -15,17 +15,32 @@ QUOTED_LEGACY_PLACEHOLDER_RE = re.compile(r"'#([A-Za-z_][A-Za-z0-9_$#]*)#'")
 ERROR_MESSAGE_QUERY = "select error_msg from jms_errormsg where id='#errorId#'"
 
 
-def preprocess_query(query: str) -> str:
+def preprocess_query(query: str, params: dict | None = None) -> str:
     """Convert legacy #param# placeholders to Oracle named binds."""
-    query = QUOTED_LEGACY_PLACEHOLDER_RE.sub(r":\1", query or "")
-    return LEGACY_PLACEHOLDER_RE.sub(r":\1", query)
+    params = params or {}
+
+    def replace_quoted_placeholder(match):
+        param_name = match.group(1)
+        if param_name not in params:
+            return "''"
+        return f":{param_name}"
+
+    def replace_placeholder(match):
+        param_name = match.group(1)
+        if param_name not in params:
+            return "''"
+        return f":{param_name}"
+
+    query = QUOTED_LEGACY_PLACEHOLDER_RE.sub(replace_quoted_placeholder, query or "")
+    return LEGACY_PLACEHOLDER_RE.sub(replace_placeholder, query)
 
 
 def get_bind_params(query: str, params: dict) -> dict:
-    """Return only params that have named bind placeholders in the SQL text."""
+    """Return params for every named bind placeholder in the SQL text."""
     bind_names = set(BIND_PLACEHOLDER_RE.findall(query or ""))
-    return {key: value for key, value in params.items() if key in bind_names}
-
+    print(bind_names)
+    return {key: params[key] for key in bind_names if key in params}
+    
 
 def get_column_name(column) -> str:
     return getattr(column, "name", column[0])
@@ -45,10 +60,9 @@ def get_row_value(row: dict, key: str, default=None):
 
 def get_validation_status(query_result: dict) -> int:
     if not query_result["rows"]:
-        return 0
+        return 1
 
-    return get_row_value(query_result["rows"][0], "validationStatus", 0)
-
+    return get_row_value(query_result["rows"][0], "validationStatus", 1)
 
 def replace_message_placeholders(message: str, params: dict) -> str:
     def replace(match):
@@ -72,9 +86,9 @@ async def fetch_rows_as_dicts(cursor) -> list[dict]:
 
 
 async def execute_query(cursor, query: str, params: dict):
-    query = preprocess_query(query)
+    query = preprocess_query(query, params)
     bind_params = get_bind_params(query, params)
-
+    print("bind_params", bind_params,query)
     if bind_params:
         await cursor.execute(query, bind_params)
     else:
@@ -117,6 +131,13 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
     try:
         pool = await pool_mgr.get_oracle_pool()
         params = json.loads(workFlowParams)
+
+        # In Python True comes as 1 but in java it comes as true. Hence, if any value is True, then it should be converted to 1
+        for key, value in params.items():
+            if isinstance(value, bool):
+                params[key] = str(value).lower()
+
+
         # if strContext is not present in params, then it should be added as null so that sql can handle this as nvl
         if "strContext" not in params:
             params.update({"strContext": ""})
@@ -138,7 +159,7 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
 
         # geting the query from yaml file
         core_query = sql.get(workFlowName)
-        core_query = preprocess_query(core_query)
+        core_query = preprocess_query(core_query, params)
 
         if not core_query.strip().upper().startswith("SELECT"):
             result["strFailureMsg"] = f"Core query for workflow '{workFlowName}' must be a SELECT statement."
@@ -167,16 +188,15 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
                         error_id = repository_query.get("ERRORID")
                         success_id = repository_query.get("SUCCESSID")
                         # if seqno is available in the repository query, then it should be used
-
-                        print(process_type, query_type, combo_name, error_id, success_id)
-
                         if repository_query.get("SEQNO") is not None:
                             seq_no = repository_query.get("SEQNO")
                         else:
                             seq_no = 0
 
+                        print(seq_no,process_type, query_type, combo_name, error_id, success_id)
+                        await execute_query(cursor, " insert into a values(:seq_no)", {"seq_no": seq_no})
 
-                        if not service_query:
+                        if not service_query or service_query.strip() == "" or service_query.strip().upper() == "X":
                             continue
 
                         # Success Message repository query can be ALL or "". hence, this query should nott be executed
@@ -189,7 +209,6 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
                                 result["strSuccessMsg"] = f"Success message not found for success ID: {success_id}"
                             continue
 
-                        print(seq_no, process_type,combo_name,query_type)
                         if process_type not in ['HdrProcess', 'HdrFetch',
                                                 'ErrorCheck', 'ebPAC', 'ebpac1',
                                                 'email', 'UID', 'ebpac'] \
@@ -198,7 +217,9 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
                             if combo_name == "x":
                                 combo_name = process_type
                             combo_array = params.get(combo_name + "_array", [])
+
                             print(combo_name, combo_array)
+
                             if not isinstance(combo_array, list):
                                 result["strFailureMsg"] = f"Expected a list for combo parameter '{combo_name}', got {type(combo_array).__name__}"
                                 errorFlag = True
@@ -219,6 +240,7 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
                                     print(workFlowName,process_type,key)
                                     print("return_variable",return_variable)
                                     if return_variable:
+                                        print("Adding ",return_variable)
                                         mapped_combo_params[return_variable] = value
 
                                 # combo params should be merged with params and passed to the query execution
@@ -228,6 +250,7 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
                                 # if the query type is validation then count should be extracted
                                 if query_type == 'Validation':
                                     count = get_validation_status(query_result)
+                                    print("Validation count:", count)
                                     if count == 0:
                                         result["strFailureMsg"] = await fetch_error_message(cursor, error_id, merged_params)
                                         print("Validation failed", error_id, result["strFailureMsg"])
@@ -237,6 +260,7 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
                             query_result = await execute_query(cursor, service_query, params)
                             if query_type == 'Validation':
                                 count = get_validation_status(query_result)
+                                print("Validation count:", count)
                                 if count == 0:
                                     result["strFailureMsg"] = await fetch_error_message(cursor, error_id, params)
                                     print("Validation failed", error_id, result["strFailureMsg"])
@@ -253,8 +277,17 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
                         if process_type == "Init":
                             result["combo_array"].append({combo_name: query_result["rows"]})
 
+                        # Adding Success Message
+                        if success_id != "" and success_id != "x":
+                            success_message = await fetch_error_message(cursor, success_id, params)
+                            if success_message:
+                                result["strSuccessMsg"] = success_message
+                            else:
+                                result["strSuccessMsg"] = f"Success message not found for success ID: {success_id}"
+
                     # COMMIT or ROLLBACK inside the cursor block
                     print("Execution completed")
+
                     if errorFlag:
                         print(f"Before rollback autocommit={conn.autocommit}")
                         print("Executing rollback due to error")

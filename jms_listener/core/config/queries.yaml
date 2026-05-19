@@ -1,32 +1,471 @@
 queries:
-  CoreConstraintService: |
+  Core3PLOwnerService: |
     select servicequery as SERVICEQUERY,
-      processtype AS PROCESSTYPE,nvl(comboname,'x') AS COMBONAME,
-      querytype as QUERYTYPE,nvl(errorid,'x') AS ERRORID, 
-      nvl(successid,'x') AS SUCCESSID 
-    from  Constraint_querytable 
-    WHERE servicename='#methodName#' order by seqno
+          processtype AS PROCESSTYPE,
+          nvl(comboname,'x') AS COMBONAME,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID
+    from owner_3pl_querytable
+    WHERE servicename='#methodName#'
+    order by seqno
+
   CoreAdminService: |
     select servicequery as SERVICEQUERY,
-      processtype AS PROCESSTYPE,nvl(comboname,'x') AS COMBONAME,
-      querytype as QUERYTYPE,nvl(errorid,'x') AS ERRORID, 
-      nvl(successid,'x') AS SUCCESSID 
-    from  COMPANYMST_QUERYTABLE
-    WHERE servicename='#methodName#' order by seqno
-  CoreItemService: |
-    Select Servicequery As Servicequery,Processtype As Processtype,
-          nvl(Comboname,'x') As Comboname,
-          querytype as QUERYTYPE,nvl(errorid,'x') AS ERRORID,
+          processtype AS PROCESSTYPE,
+          nvl(comboname,'x') AS COMBONAME,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
           nvl(successid,'x') AS SUCCESSID
-    from  item_QUERYTABLE qt ,
-          item_COMMONQT cqt
+    from COMPANYMST_QUERYTABLE
+    WHERE servicename='#methodName#'
+    order by seqno
+
+  CoreCalendarExceptionService: |
+    select servicequery as SERVICEQUERY,
+          processtype AS PROCESSTYPE,
+          nvl(comboname,'x') AS COMBONAME,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID
+    from Calendar_querytable
+    WHERE servicename='#methodName#'
+    order by seqno
+
+  CoreCalendarService: |
+    select servicequery as SERVICEQUERY,
+          processtype AS PROCESSTYPE,
+          nvl(comboname,'x') AS COMBONAME,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID
+    from Calendar_querytable
+    WHERE servicename='#methodName#'
+    order by seqno
+
+  CoreCarrierContract: |
+    select servicequery as SERVICEQUERY,
+          processtype AS PROCESSTYPE,
+          nvl(comboname,'x') AS COMBONAME,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID
+    from CarrierContract_querytable qt,
+        CARRIERCONTRACT_COMMONQT cqt
     where qt.groupname = cqt.groupname
-    and   cqt.servicename = '#methodName#'
-    order by cqt.seqno,qt.seqno
+      and cqt.servicename = '#methodName#'
+    order by cqt.seqno, qt.seqno
+
+  CoreChecklistService: |
+    select servicequery as SERVICEQUERY,
+          processtype AS PROCESSTYPE,
+          nvl(comboname,'x') AS COMBONAME,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID
+    from Checklist_querytable
+    WHERE servicename='#methodName#'
+    order by seqno
+
+  CoreConsequencemanagement: |
+    select SERVICEQUERY as SERVICEQUERY,
+          PROCESSTYPE as PROCESSTYPE,
+          NVL(COMBONAME,'x') as COMBONAME,
+          QUERYTYPE as QUERYTYPE,
+          NVL(ERRORID,'x') as ERRORID,
+          NVL(SUCCESSID,'x') as SUCCESSID
+    from CONSEQUENCEMGMT_QUERYTABLE QT,
+        ConsequenceMgmt_COMMONQT cqt
+    where qt.groupname = cqt.groupname
+      and CQT.SERVICENAME = '#methodName#'
+    order by cqt.seqno, qt.seqno
+
+  CoreConsignment: |
+    select Servicequery as Servicequery,
+          Processtype as Processtype,
+          Nvl(Comboname,'x') as Comboname,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID
+    from CONSIGNMENT_QUERYTABLE qt,
+        CONSIGNMENT_COMMONQT cqt
+    where qt.groupname = cqt.groupname
+      and Cqt.Servicename = '#methodName#'
+    order by cqt.seqno, qt.seqno
+
+  CoreConstraintService: |
+    select servicequery as SERVICEQUERY,
+          processtype AS PROCESSTYPE,
+          nvl(comboname,'x') AS COMBONAME,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID
+    from Constraint_querytable
+    WHERE servicename='#methodName#'
+    order by seqno
+
+  CoreCostCenterService: |
+    select Servicequery as Servicequery,
+          Processtype as Processtype,
+          Nvl(Comboname,'x') as Comboname,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID
+    from COSTCENTER_QUERYTABLE qt,
+        COSTCENTER_COMMONQT cqt
+    where qt.groupname = cqt.groupname
+      and cqt.servicename = '#methodName#'
+    order by cqt.seqno, qt.seqno
+
+  CoreCustomerContract: |
+    select servicequery as SERVICEQUERY,
+          processtype AS PROCESSTYPE,
+          nvl(comboname,'x') AS COMBONAME,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID
+    from customercontract_querytable qt,
+        customercontract_commonQT cqt
+    where qt.groupname = cqt.groupname
+      and cqt.servicename = '#methodName#'
+    order by cqt.seqno, qt.seqno
+
   CoreCustomerService: |
-    select  distinct seqno,servicequery as SERVICEQUERY,processtype AS PROCESSTYPE,
-            nvl(comboname,'x') AS COMBONAME,querytype as QUERYTYPE,  
-            nvl(errorid,'x') AS ERRORID, nvl(successid,'x') AS SUCCESSID 
-    from    customer_querytable 
-    WHERE   servicename='#methodName#' 
+    select servicequery as SERVICEQUERY,
+          processtype AS PROCESSTYPE,
+          nvl(comboname,'x') AS COMBONAME,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID
+    from customer_querytable
+    WHERE servicename='#methodName#'
+    order by seqno
+
+  CoreCustVendorService: |
+    select servicequery as SERVICEQUERY,
+          processtype AS PROCESSTYPE,
+          nvl(comboname,'x') AS COMBONAME,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID
+    from vendor_querytable
+    WHERE servicename='#methodName#'
+    order by seqno
+
+  CoreDriveService: |
+    select servicequery as SERVICEQUERY,
+          processtype AS PROCESSTYPE,
+          nvl(comboname,'x') AS COMBONAME,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID
+    from DRIVER_QUERYTABLE
+    WHERE servicename='#methodName#'
+    order by seqno
+
+  CoreEmployeeRosterService: |
+    select Servicequery as Servicequery,
+          Processtype as Processtype,
+          Nvl(Comboname,'x') as Comboname,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID,
+          nvl(servicequery1,' ') as SERVICEQUERY1
+    from EMP_ROSTER_QUERYTABLE erqt,
+        EMPROSTER_COMMONQT cqt
+    where erqt.groupname = cqt.groupname
+      and cqt.servicename = '#methodName#'
+    order by cqt.seqno, erqt.seqno
+
+  CoreEmployeeService: |
+    select servicequery as SERVICEQUERY,
+          processtype AS PROCESSTYPE,
+          nvl(comboname,'x') AS COMBONAME,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID
+    from employee_querytable
+    WHERE servicename='#methodName#'
+    order by seqno
+
+  CoreGateEntry: |
+    select servicequery as SERVICEQUERY,
+          processtype AS PROCESSTYPE,
+          nvl(comboname,'x') AS COMBONAME,
+          nvl(querytype,'x') as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID
+    from GATEENTRY_QUERYTABLE
+    WHERE servicename='#methodName#'
+    order by seqno
+
+  CoreInspectionService: |
+    select SERVICEQUERY as SERVICEQUERY,
+          PROCESSTYPE as PROCESSTYPE,
+          NVL(COMBONAME,'x') as COMBONAME,
+          QUERYTYPE as QUERYTYPE,
+          NVL(ERRORID,'x') as ERRORID,
+          NVL(SUCCESSID,'x') as SUCCESSID
+    from inspection_querytable
+    WHERE servicename='#methodName#'
+    order by seqno
+
+  CoreInspectionsService: |
+    select Servicequery as Servicequery,
+          Processtype as Processtype,
+          Nvl(Comboname,'x') as Comboname,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID,
+          nvl(servicequery1,' ') as SERVICEQUERY1
+    from INSPECTIONS_QUERYTABLE qt,
+        INSPECTIONS_COMMONQT cqt
+    where qt.groupname = cqt.groupname
+      and Cqt.Servicename = '#methodName#'
+    order by cqt.seqno, qt.seqno
+
+  CoreInspectorService: |
+    select servicequery as SERVICEQUERY,
+          processtype AS PROCESSTYPE,
+          nvl(comboname,'x') AS COMBONAME,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID
+    from assigninspector_querytable
+    WHERE servicename='#methodName#'
+    order by seqno
+
+  CoreItemService: |
+    select Servicequery as Servicequery,
+          Processtype as Processtype,
+          Nvl(Comboname,'x') as Comboname,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID
+    from item_QUERYTABLE qt,
+        item_COMMONQT cqt
+    where qt.groupname = cqt.groupname
+      and cqt.servicename = '#methodName#'
+    order by cqt.seqno, qt.seqno
+
+  CoreJourneyAssessmentService: |
+    SELECT servicequery as SERVICEQUERY,
+          processtype as PROCESSTYPE,
+          NVL(comboname,'x') as COMBONAME,
+          querytype as QUERYTYPE,
+          NVL(errorid,'x') as ERRORID,
+          NVL(successid,'x') as SUCCESSID,
+          nvl(servicequery1,' ') as SERVICEQUERY1
+    FROM journeyplan_querytable qt,
+        journeyplan_commonQT cqt
+    WHERE qt.groupname = cqt.groupname
+      AND cqt.servicename = '#methodName#'
+    ORDER BY cqt.seqno, qt.seqno
+
+  CoreJourneyPlanService: |
+    SELECT servicequery as SERVICEQUERY,
+          processtype as PROCESSTYPE,
+          NVL(comboname,'x') as COMBONAME,
+          querytype as QUERYTYPE,
+          NVL(errorid,'x') as ERRORID,
+          NVL(successid,'x') as SUCCESSID,
+          nvl(servicequery1,' ') as SERVICEQUERY1
+    FROM journeyplan_querytable qt,
+        journeyplan_commonQT cqt
+    WHERE qt.groupname = cqt.groupname
+      AND cqt.servicename = '#methodName#'
+    ORDER BY cqt.seqno, qt.seqno
+
+  CoreLocationService: |
+    select servicequery as "SERVICEQUERY",
+          processtype AS "PROCESSTYPE",
+          coalesce(comboname,'x') AS "COMBONAME",
+          querytype as "QUERYTYPE",
+          coalesce(errorid,'x') AS "ERRORID",
+          coalesce(successid,'x') AS "SUCCESSID"
+    from location_querytable
+    WHERE servicename='#methodName#'
+    order by seqno
+
+  CoreLoginService: |
+    select servicequery as SERVICEQUERY,
+          processtype AS PROCESSTYPE,
+          nvl(comboname,'x') AS COMBONAME,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID
+    from companymst_querytable
+    WHERE servicename='#methodName#'
+    order by seqno
+
+  CoreNumberingService: |
+    select servicequery as SERVICEQUERY,
+          processtype AS PROCESSTYPE,
+          nvl(comboname,'x') AS COMBONAME,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID
+    from numberingseries_querytable
+    WHERE servicename='#methodName#'
+    order by seqno
+
+  CoreReportService: |
+    select servicequery as SERVICEQUERY,
+          processtype AS PROCESSTYPE,
+          nvl(comboname,'x') AS COMBONAME,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID
+    from report_querytable
+    WHERE servicename='#methodName#'
+    order by seqno
+
+  CoreRouteAttributeService: |
+    select servicequery as SERVICEQUERY,
+          processtype AS PROCESSTYPE,
+          nvl(comboname,'x') AS COMBONAME,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID
+    from route_attribute_querytable
+    WHERE servicename='#methodName#'
+    order by seqno
+
+  CoreRouteService: |
+    select servicequery as SERVICEQUERY,
+          processtype AS PROCESSTYPE,
+          nvl(comboname,'x') AS COMBONAME,
+          nvl(querytype,'x') as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID
+    from route_querytable
+    WHERE servicename='#methodName#'
+    order by seqno
+
+  CoreShiftService: |
+    select Servicequery as Servicequery,
+          Processtype as Processtype,
+          Nvl(Comboname,'x') as Comboname,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID,
+          nvl(servicequery1,' ') as SERVICEQUERY1
+    from shift_querytable qt,
+        Shift_Commonqt cqt
+    where qt.groupname = cqt.groupname
+      and cqt.servicename = '#methodName#'
+    order by cqt.seqno, qt.seqno
+
+  CoreSupplierService: |
+    select servicequery as SERVICEQUERY,
+          processtype AS PROCESSTYPE,
+          nvl(comboname,'x') AS COMBONAME,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID
+    from supplier_querytable
+    WHERE servicename='#methodName#'
+    order by seqno
+
+  CoreSystemParameterTS: |
+    select servicequery as SERVICEQUERY,
+          nvl(servicequery1,' ') as SERVICEQUERY1,
+          processtype AS PROCESSTYPE,
+          nvl(comboname,'x') AS COMBONAME,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID
+    from SYSPARAM_QUERYTABLE
+    WHERE servicename='#methodName#'
+    order by seqno
+
+  CoreTenantService: |
+    select servicequery as SERVICEQUERY,
+          processtype AS PROCESSTYPE,
+          nvl(comboname,'x') AS COMBONAME,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID
+    from tenant_mst_querytable
+    WHERE servicename='#methodName#'
+    order by seqno
+
+  CoreToolboxTalkService: |
+    select servicequery as SERVICEQUERY,
+          processtype AS PROCESSTYPE,
+          nvl(comboname,'x') AS COMBONAME,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID
+    from TOOLBOXTALKS_MAP_QUERYTABLE
+    WHERE servicename='#methodName#'
+    order by seqno
+
+  CoreTrailerService: |
+    select servicequery as SERVICEQUERY,
+          processtype AS PROCESSTYPE,
+          nvl(comboname,'x') AS COMBONAME,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID
+    from PRIMEMOVER_TRAILER_QUERYTABLE
+    WHERE servicename='#methodName#'
+    order by seqno
+
+  CoreTruckSchedule: |
+    select servicequery as SERVICEQUERY,
+          processtype AS PROCESSTYPE,
+          nvl(comboname,'x') AS COMBONAME,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID
+    from TRUCKSCHEDULE_QUERYTABLE
+    WHERE servicename='#methodName#'
+    order by seqno
+
+  CoreTruckService: |
+    select servicequery as SERVICEQUERY,
+          processtype AS PROCESSTYPE,
+          nvl(comboname,'x') AS COMBONAME,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID,
+          nvl(servicequery1,' ') as SERVICEQUERY1
+    from TRUCK_querytable
+    WHERE servicename='#methodName#'
+    order by seqno
+
+  CoreTypeMasterService: |
+    select servicequery as SERVICEQUERY,
+          processtype AS PROCESSTYPE,
+          nvl(comboname,'x') AS COMBONAME,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID
+    from typemaster_querytable
+    WHERE servicename='#methodName#'
+    order by seqno
+
+  CoreVehicleRequest: |
+    select servicequery as SERVICEQUERY,
+          processtype AS PROCESSTYPE,
+          nvl(comboname,'x') AS COMBONAME,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID
+    from VEHICLEREQUEST_QUERYTABLE qt,
+        VEHICLEREQUEST_COMMONQT cqt
+    where qt.groupname = cqt.groupname
+      and cqt.servicename = '#methodName#'
+    order by cqt.seqno, qt.seqno
+
+  CoreViolationService: |
+    select servicequery as SERVICEQUERY,
+          processtype AS PROCESSTYPE,
+          nvl(comboname,'x') AS COMBONAME,
+          querytype as QUERYTYPE,
+          nvl(errorid,'x') AS ERRORID,
+          nvl(successid,'x') AS SUCCESSID
+    from Violation_querytable
+    WHERE servicename='#methodName#'
     order by seqno
