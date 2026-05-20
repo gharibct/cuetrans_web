@@ -130,7 +130,17 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
     # Decode the JSON params (same as Ext.JSON.decode)
     try:
         pool = await pool_mgr.get_oracle_pool()
-        params = json.loads(workFlowParams)
+        print(f"Received workflow request: {workFlowParams}")
+        print(type(workFlowParams))
+
+        
+        # Workflow params is string then it should be converted to json. If it is already json, then it should be used as it is
+        if isinstance(workFlowParams, str):
+            workFlowParams_json_str = workFlowParams.replace("'", '"')
+            params = json.loads(workFlowParams_json_str)
+        else:
+            params = workFlowParams
+        print(f"Decoded workflow params: {params}")
 
         # In Python True comes as 1 but in java it comes as true. Hence, if any value is True, then it should be converted to 1
         for key, value in params.items():
