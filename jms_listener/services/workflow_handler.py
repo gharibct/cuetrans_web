@@ -5,6 +5,7 @@ from core.process_types import ProcessType
 from core.variable_mapping import variable_mapping
 from utils.db.pool_manager import PoolManager
 from utils.db.query_loader import sql
+import uuid
 
 logger = logging.getLogger(__name__) 
 pool_mgr = PoolManager()
@@ -82,6 +83,8 @@ def get_process_type(process_type: str) -> ProcessType:
 async def fetch_rows_as_dicts(cursor) -> list[dict]:
     columns = [get_column_name(column) for column in cursor.description]
     rows = await cursor.fetchall()
+    # blank values should be converted to empty string in the result
+    rows = [[value if value is not None else "" for value in row] for row in rows]
     return [dict(zip(columns, row)) for row in rows]
 
 
@@ -148,17 +151,17 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
                 params[key] = str(value).lower()
 
 
-        # if strContext is not present in params, then it should be added as null so that sql can handle this as nvl
-        if "strContext" not in params:
-            params.update({"strContext": ""})
+        # # if strContext is not present in params, then it should be added as null so that sql can handle this as nvl
+        # if "strContext" not in params:
+        #     params.update({"strContext": ""})
 
-        # This is handcoded intially. This should be removed when login is implemented using JWT
-        params.update({"strUserId": "cuetransadmin"})
-        params.update({"strOrgId": "cuetrans"})
-        params.update({"strLangId": 1})
-        params.update({"strRoleId": "admin"})
-        params.update({"strTenantId": 1})
-        params.update({"strDeptId": 1})        
+        # # This is handcoded intially. This should be removed when login is implemented using JWT
+        # params.update({"strUserId": "cuetransadmin"})
+        # params.update({"strOrgId": "cuetrans"})
+        # params.update({"strLangId": 1})
+        # params.update({"strRoleId": "admin"})
+        # params.update({"strTenantId": 1})
+        # params.update({"strDeptId": 1})        
 
         result = {
             "hdrcache": [],
@@ -198,15 +201,41 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
                         error_id = repository_query.get("ERRORID")
                         success_id = repository_query.get("SUCCESSID")
                         # if seqno is available in the repository query, then it should be used
+
                         if repository_query.get("SEQNO") is not None:
                             seq_no = repository_query.get("SEQNO")
                         else:
                             seq_no = 0
 
+                        if repository_query.get("SERVICEQUERY1") is not None:
+                            service_query1 = repository_query.get("SERVICEQUERY1")
+                            service_query = service_query + service_query1
+                        else:
+                            service_query1 = ""
+
+                        # trim service_query
+                        service_query = service_query.strip()
+
+                        # # if service_query ends with ; then it should be removed
+                        # if service_query.endswith(";"):
+                        #     service_query = service_query[:-1]
+
                         print(seq_no,process_type, query_type, combo_name, error_id, success_id)
-                        await execute_query(cursor, " insert into a values(:seq_no)", {"seq_no": seq_no})
 
                         if not service_query or service_query.strip() == "" or service_query.strip().upper() == "X":
+                            continue
+
+                        # if process type is UID, then generate guid and add it to params with key as guid
+                        if process_type == "UID":
+                            guid = str(uuid.uuid4())
+                            params["guid"] = guid
+
+                            if success_id != "" and success_id != "x":
+                                success_message = await fetch_error_message(cursor, success_id, params)
+                                if success_message:
+                                    result["strSuccessMsg"] = success_message
+                                else:
+                                    result["strSuccessMsg"] = f"Success message not found for success ID: {success_id}"                               
                             continue
 
                         # Success Message repository query can be ALL or "". hence, this query should nott be executed

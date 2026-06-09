@@ -469,3 +469,196 @@ queries:
     from Violation_querytable
     WHERE servicename='#methodName#'
     order by seqno
+
+  DSCoreSecurityTS: |
+      select Servicequery As Servicequery,
+            Processtype As Processtype,
+            Nvl(Comboname,'x') As Comboname,
+            querytype as QUERYTYPE,
+            nvl(errorid,'x') AS ERRORID,
+            nvl(successid,'x') AS SUCCESSID,
+            nvl(servicequery1,' ') as SERVICEQUERY1
+      from DS_QUERYTABLE qt,
+          DS_COMMONQT cqt
+      where qt.groupname = cqt.groupname
+        and cqt.servicename = '#methodName#'
+      order by cqt.seqno, qt.seqno
+
+  FINCoreFinanceServiceTS: |
+      select Servicequery As Servicequery,
+            Processtype As Processtype,
+            Nvl(Comboname,'x') As Comboname,
+            querytype as QUERYTYPE,
+            nvl(errorid,'x') AS ERRORID,
+            nvl(successid,'x') AS SUCCESSID
+      from finance_QUERYTABLE qt,
+          finance_COMMONQT cqt
+      where qt.groupname = cqt.groupname
+        and cqt.servicename = '#methodName#'
+      order by cqt.seqno, qt.seqno
+
+  FXCoreTS: |
+      select Servicequery As Servicequery,
+            Processtype As Processtype,
+            Nvl(Comboname,'x') As Comboname,
+            querytype as QUERYTYPE,
+            nvl(errorid,'x') AS ERRORID,
+            nvl(successid,'x') AS SUCCESSID,
+            nvl(servicequery1,' ') as SERVICEQUERY1
+      from FX_QUERYTABLE qt,
+          FX_COMMONQT cqt
+      where qt.groupname = cqt.groupname
+        and CQT.SERVICENAME = '#methodName#'
+      order by cqt.seqno, qt.seqno
+
+  GPCoreServiceTS: |
+      select Servicequery As Servicequery,
+            Processtype As Processtype,
+            Nvl(Comboname,'x') As Comboname,
+            querytype as QUERYTYPE,
+            nvl(errorid,'x') AS ERRORID,
+            nvl(successid,'x') AS SUCCESSID,
+            nvl(servicequery1,' ') as SERVICEQUERY1
+      from GP_QUERYTABLE qt,
+          GP_COMMONQT cqt
+      where qt.groupname = cqt.groupname
+        and CQT.SERVICENAME = '#methodName#'
+      order by cqt.seqno, qt.seqno
+
+  IVMSHealthChkCoreServiceTS: |
+      select Servicequery As Servicequery,
+            Processtype As Processtype,
+            Nvl(Comboname,'x') As Comboname,
+            querytype as QUERYTYPE,
+            nvl(errorid,'x') AS ERRORID,
+            nvl(successid,'x') AS SUCCESSID,
+            nvl(servicequery1,' ') as SERVICEQUERY1
+      from IVMSHEALTH_QUERYTABLE qt,
+          IVMSHEALTH_COMMONQT cqt
+      where qt.groupname = cqt.groupname
+        and CQT.SERVICENAME = '#methodName#'
+      order by cqt.seqno, qt.seqno
+
+  OTOAppCoreServiceTS: |
+      select Servicequery As Servicequery,
+            Processtype As Processtype,
+            Nvl(Comboname,'x') As Comboname,
+            querytype as QUERYTYPE,
+            nvl(errorid,'x') AS ERRORID,
+            nvl(successid,'x') AS SUCCESSID,
+            nvl(servicequery1,' ') as SERVICEQUERY1
+      from OTOAPP_QUERYTABLE qt,
+          OTOAPP_COMMONQT cqt
+      where qt.groupname = cqt.groupname
+        and CQT.SERVICENAME = '#methodName#'
+      order by cqt.seqno, qt.seqno
+
+  PPLCoreMasterTS: |
+      select Servicequery As Servicequery,
+            Processtype As Processtype,
+            Nvl(Comboname,'x') As Comboname,
+            querytype as QUERYTYPE,
+            nvl(errorid,'x') AS ERRORID,
+            nvl(successid,'x') AS SUCCESSID,
+            nvl(servicequery1,' ') as SERVICEQUERY1
+      from PPL_QUERYTABLE qt,
+          PPL_COMMONQT cqt
+      where qt.groupname = cqt.groupname
+        and cqt.servicename = '#methodName#'
+      order by cqt.seqno, qt.seqno
+
+  PPLCoreTS: |
+      select Servicequery As Servicequery,
+            Processtype As Processtype,
+            Nvl(Comboname,'x') As Comboname,
+            querytype as QUERYTYPE,
+            nvl(errorid,'x') AS ERRORID,
+            nvl(successid,'x') AS SUCCESSID,
+            nvl(servicequery1,' ') as SERVICEQUERY1
+      from PPL_QUERYTABLE qt,
+          PPL_COMMONQT cqt
+      where qt.groupname = cqt.groupname
+        and cqt.servicename = '#methodName#'
+      order by cqt.seqno, qt.seqno
+
+  SERCoreServiceGroupTS: |
+      select Servicequery As Servicequery,
+            Processtype As Processtype,
+            Nvl(Comboname,'x') As Comboname,
+            querytype as QUERYTYPE,
+            nvl(errorid,'x') AS ERRORID,
+            nvl(successid,'x') AS SUCCESSID,
+            nvl(servicequery1,' ') as SERVICEQUERY1
+      from SERVICEGROUP_QUERYTABLE qt,
+          SERVICEGROUP_COMMONQT cqt
+      where qt.groupname = cqt.groupname
+        and cqt.servicename = '#methodName#'
+      order by cqt.seqno, qt.seqno
+
+  TARCoreTariffServiceTS: |
+      select Servicequery As Servicequery,
+            Processtype As Processtype,
+            Nvl(Comboname,'x') As Comboname,
+            querytype as QUERYTYPE,
+            nvl(errorid,'x') AS ERRORID,
+            nvl(successid,'x') AS SUCCESSID
+      from tariff_QUERYTABLE qt,
+          tariff_COMMONQT cqt
+      where qt.groupname = cqt.groupname
+        and cqt.servicename = '#methodName#'
+      order by cqt.seqno, qt.seqno
+
+  TMSCoreTransportTS: |
+      select Servicequery As Servicequery,
+            Processtype As Processtype,
+            Nvl(Comboname,'x') As Comboname,
+            querytype as QUERYTYPE,
+            nvl(errorid,'x') AS ERRORID,
+            nvl(successid,'x') AS SUCCESSID,
+            nvl(servicequery1,' ') as SERVICEQUERY1
+      from TMS_QUERYTABLE qt,
+          TMS_COMMONQT cqt
+      where qt.groupname = cqt.groupname
+        and cqt.servicename = '#methodName#'
+      order by cqt.seqno, qt.seqno
+
+  TRPLISTCoreTripListTS: |
+      select Servicequery As Servicequery,
+            Processtype As Processtype,
+            Nvl(Comboname,'x') As Comboname,
+            querytype as QUERYTYPE,
+            nvl(errorid,'x') AS ERRORID,
+            nvl(successid,'x') AS SUCCESSID
+      from TRIPLIST_QUERYTABLE qt,
+          TRIPLIST_COMMONQT cqt
+      where qt.groupname = cqt.groupname
+        and cqt.servicename = '#methodName#'
+      order by cqt.seqno, qt.seqno
+
+  VEHSCHCoreVehSchServiceTS: |
+      select Servicequery As Servicequery,
+            Processtype As Processtype,
+            Nvl(Comboname,'x') As Comboname,
+            querytype as QUERYTYPE,
+            nvl(errorid,'x') AS ERRORID,
+            nvl(successid,'x') AS SUCCESSID,
+            nvl(servicequery1,' ') as SERVICEQUERY1
+      from TMS_QUERYTABLE qt,
+          TMS_COMMONQT cqt
+      where qt.groupname = cqt.groupname
+        and cqt.servicename = '#methodName#'
+      order by cqt.seqno, qt.seqno
+
+  WasteWaterCoreServiceTS: |
+      select Servicequery As Servicequery,
+            Processtype As Processtype,
+            Nvl(Comboname,'x') As Comboname,
+            querytype as QUERYTYPE,
+            nvl(errorid,'x') AS ERRORID,
+            nvl(successid,'x') AS SUCCESSID,
+            nvl(servicequery1,' ') as SERVICEQUERY1
+      from WW_QUERYTABLE qt,
+          WW_COMMONQT cqt
+      where qt.groupname = cqt.groupname
+        and CQT.SERVICENAME = '#methodName#'
+      order by cqt.seqno, qt.seqno    
