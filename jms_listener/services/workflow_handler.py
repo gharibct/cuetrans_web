@@ -229,6 +229,7 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
                         if process_type == "UID":
                             guid = str(uuid.uuid4())
                             params["guid"] = guid
+                            params["iUID"] = guid
 
                             if success_id != "" and success_id != "x":
                                 success_message = await fetch_error_message(cursor, success_id, params)
