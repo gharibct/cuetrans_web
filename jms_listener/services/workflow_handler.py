@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 import logging
 import re
@@ -80,22 +81,63 @@ def get_process_type(process_type: str) -> ProcessType:
         raise ValueError(f"Unsupported process type: {process_type}") from exc
 
 
-async def fetch_rows_as_dicts(cursor) -> list[dict]:
-    columns = [get_column_name(column) for column in cursor.description]
-    rows = await cursor.fetchall()
-    # blank values should be converted to empty string in the result
-    rows = [[value if value is not None else "" for value in row] for row in rows]
-    return [dict(zip(columns, row)) for row in rows]
+# async def fetch_rows_as_dicts(cursor) -> list[dict]:
+#     cursor.arraysize = 10000  # Critical for Oracle
+#     cursor.prefetchrows = 10000
+#     print(f"execute_query fetch_rows_as_dicts before1: {datetime.now()}")
+#     columns = [get_column_name(column) for column in cursor.description]
+#     print(f"execute_query fetch_rows_as_dicts before2: {datetime.now()}")
+#     rows = await cursor.fetchall()
+#     print(f"execute_query fetch_rows_as_dicts before3: {datetime.now()}")
+#     # blank values should be converted to empty string in the result
+#     rows = [[value if value is not None else "" for value in row] for row in rows]
+#     print(f"execute_query fetch_rows_as_dicts after1: {datetime.now()}")
+#     return [dict(zip(columns, row)) for row in rows]
 
+async def fetch_rows_as_dicts(cursor) -> list[dict]:
+    cursor.arraysize = 100
+    cursor.prefetchrows = 100
+    columns = [get_column_name(column) for column in cursor.description]
+    result = []
+    # while True:
+    #     batch = await cursor.fetchmany(500)
+    #     if not batch:
+    #         break
+    #     for row in batch:
+    #         result.append({
+    #             columns[i]: (
+    #                 row[i] if row[i] is not None else ""
+    #             )
+    #             for i in range(len(columns))
+    #         })
+    batch = await cursor.fetchmany(100)
+    for row in batch:
+        result.append({
+            columns[i]: (
+                row[i] if row[i] is not None else ""
+            )
+            for i in range(len(columns))
+        })
+
+
+    return result
 
 async def execute_query(cursor, query: str, params: dict):
+    print(f"execute_query Before1: {datetime.now()}")
     query = preprocess_query(query, params)
+    print(f"execute_query Before2: {datetime.now()}")
     bind_params = get_bind_params(query, params)
+    print(f"execute_query Before3: {datetime.now()}")
     print("bind_params", bind_params,query)
     if bind_params:
+        print(f"execute_query bind_params before: {datetime.now()}")
         await cursor.execute(query, bind_params)
+        print(f"execute_query bind_params after: {datetime.now()}")
     else:
+        print(f"execute_query bind_params before1: {datetime.now()}")
         await cursor.execute(query)
+        print(f"execute_query bind_params after2: {datetime.now()}")
+
 
     if cursor.description is not None:
         return {
@@ -183,14 +225,16 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
         async with pool.acquire() as conn:
             conn.autocommit = False  # Ensure we control transactions manually
             try:
-                with conn.cursor() as cursor:
-
+                async with conn.cursor() as cursor:
+                    # cursor.arraysize = 10000
                     # MethodName which is required for execution, is alreadly present in the params
                     repository_result = await execute_query(cursor, core_query, params)
 
                     repository_queries = repository_result["rows"]
                     print(params)
                     for repository_query in repository_queries:
+                        # print current time
+                        print(f"Top: {datetime.now()}")
 
                         if errorFlag:
                             break
@@ -285,7 +329,9 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
 
                                 # combo params should be merged with params and passed to the query execution
                                 merged_params = {**params, **mapped_combo_params}
+                                print(f"Before: {datetime.now()}")
                                 query_result = await execute_query(cursor, service_query, merged_params)
+                                print(f"After: {datetime.now()}")
 
                                 # if the query type is validation then count should be extracted
                                 if query_type == 'Validation':
@@ -297,7 +343,9 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
                                         errorFlag = True
                                         break
                         else:
+                            print(f"Before: {datetime.now()}")
                             query_result = await execute_query(cursor, service_query, params)
+                            print(f"After: {datetime.now()}")
                             if query_type == 'Validation':
                                 count = get_validation_status(query_result)
                                 print("Validation count:", count)
