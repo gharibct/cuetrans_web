@@ -201,7 +201,7 @@ queries:
 
   CoreInspectionService: |
     select SERVICEQUERY as SERVICEQUERY,
-          PROCESSTYPE as PROCESSTYPE,
+          nvl(N_PROCESSTYPE,PROCESSTYPE) as PROCESSTYPE,
           NVL(COMBONAME,'x') as COMBONAME,
           QUERYTYPE as QUERYTYPE,
           NVL(ERRORID,'x') as ERRORID,
