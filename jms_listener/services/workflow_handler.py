@@ -359,7 +359,8 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
                         if process_type == "HdrFetch":
                             # result["hdrcache"].extend(query_result["rows"])
                             print("HdrFetch result", query_result["rows"])
-                            result["hdrcache"][0].update(query_result["rows"][0])                            
+                            if len(query_result["rows"]) > 0:
+                                result["hdrcache"][0].update(query_result["rows"][0])                            
 
                         if process_type == "MTLFetch":
                             result["grid_array"].append({combo_name: query_result["rows"]})
