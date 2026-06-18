@@ -10,6 +10,8 @@ class VariableMappingLoader:
     def __init__(self, mapping_path=DEFAULT_MAPPING_PATH):
         self.mapping_path = Path(mapping_path)
         self.return_variables = self._load_return_variables()
+        # print(self.mapping_path)
+        # print(self.return_variables)
 
     @staticmethod
     def _lookup_key(core_service: str, process_type: str, key: str) -> tuple[str, str, str]:
