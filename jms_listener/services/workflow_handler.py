@@ -24,12 +24,14 @@ def preprocess_query(query: str, params: dict | None = None) -> str:
     def replace_quoted_placeholder(match):
         param_name = match.group(1)
         if param_name not in params:
+            print('missing param', param_name)
             return "''"
         return f":{param_name}"
 
     def replace_placeholder(match):
         param_name = match.group(1)
         if param_name not in params:
+            print('************missing param******* :', param_name)
             return "''"
         return f":{param_name}"
 
@@ -40,7 +42,7 @@ def preprocess_query(query: str, params: dict | None = None) -> str:
 def get_bind_params(query: str, params: dict) -> dict:
     """Return params for every named bind placeholder in the SQL text."""
     bind_names = set(BIND_PLACEHOLDER_RE.findall(query or ""))
-    print(bind_names)
+    # print(bind_names)
     return {key: params[key] for key in bind_names if key in params}
     
 
@@ -123,20 +125,20 @@ async def fetch_rows_as_dicts(cursor) -> list[dict]:
     return result
 
 async def execute_query(cursor, query: str, params: dict):
-    print(f"execute_query Before1: {datetime.now()}")
+    # print(f"execute_query Before1: {datetime.now()}")
     query = preprocess_query(query, params)
-    print(f"execute_query Before2: {datetime.now()}")
+    # print(f"execute_query Before2: {datetime.now()}")
     bind_params = get_bind_params(query, params)
-    print(f"execute_query Before3: {datetime.now()}")
-    print("bind_params", bind_params,query)
+    # print(f"execute_query Before3: {datetime.now()}")
+    # print("bind_params", bind_params,query)
     if bind_params:
-        print(f"execute_query bind_params before: {datetime.now()}")
+        # print(f"execute_query bind_params before: {datetime.now()}")
         await cursor.execute(query, bind_params)
-        print(f"execute_query bind_params after: {datetime.now()}")
+        # print(f"execute_query bind_params after: {datetime.now()}")
     else:
-        print(f"execute_query bind_params before1: {datetime.now()}")
+        # print(f"execute_query bind_params before1: {datetime.now()}")
         await cursor.execute(query)
-        print(f"execute_query bind_params after2: {datetime.now()}")
+        # print(f"execute_query bind_params after2: {datetime.now()}")
 
 
     if cursor.description is not None:
@@ -175,8 +177,8 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
     # Decode the JSON params (same as Ext.JSON.decode)
     try:
         pool = await pool_mgr.get_oracle_pool()
-        print(f"Received workflow request: {workFlowParams}")
-        print(type(workFlowParams))
+        # print(f"Received workflow request: {workFlowParams}")
+        # print(type(workFlowParams))
 
         
         # Workflow params is string then it should be converted to json. If it is already json, then it should be used as it is
@@ -185,7 +187,7 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
             params = json.loads(workFlowParams_json_str)
         else:
             params = workFlowParams
-        print(f"Decoded workflow params: {params}")
+        # print(f"Decoded workflow params: {params}")
 
         # In Python True comes as 1 but in java it comes as true. Hence, if any value is True, then it should be converted to 1
         for key, value in params.items():
@@ -231,10 +233,10 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
                     repository_result = await execute_query(cursor, core_query, params)
 
                     repository_queries = repository_result["rows"]
-                    print(params)
+                    # print(params)
                     for repository_query in repository_queries:
-                        # print current time
-                        print(f"Top: {datetime.now()}")
+                        # # print current time
+                        # print(f"Top: {datetime.now()}")
 
                         if errorFlag:
                             break
@@ -245,7 +247,7 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
                         error_id = repository_query.get("ERRORID")
                         success_id = repository_query.get("SUCCESSID")
                         # if seqno is available in the repository query, then it should be used
-
+                        print(datetime.now(),"process type", process_type, "query_type", query_type, "combo_name", combo_name, "error_id", error_id, "success_id", success_id)
                         if repository_query.get("SEQNO") is not None:
                             seq_no = repository_query.get("SEQNO")
                         else:
@@ -264,7 +266,7 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
                         # if service_query.endswith(";"):
                         #     service_query = service_query[:-1]
 
-                        print(seq_no,process_type, query_type, combo_name, error_id, success_id)
+                        # print(seq_no,process_type, query_type, combo_name, error_id, success_id)
 
                         if not service_query or service_query.strip() == "" or service_query.strip().upper() == "X":
                             continue
@@ -302,15 +304,19 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
                                 combo_name = process_type
                             combo_array = params.get(combo_name + "_array", [])
 
-                            print(combo_name, combo_array)
+                            # print(combo_name, combo_array)
 
                             if not isinstance(combo_array, list):
                                 result["strFailureMsg"] = f"Expected a list for combo parameter '{combo_name}', got {type(combo_array).__name__}"
                                 errorFlag = True
                                 break
 
+                            # Create a iterator and pass it as input to variable mapping. 
+                            # This iterator will be used as row number
+                            row_number = 0
+
                             for combo_params in combo_array:
-                                print("combo_params", combo_params)
+                                # print("combo_params", combo_params)
                                 if not isinstance(combo_params, dict):
                                     result["strFailureMsg"] = f"Expected a dict for combo parameters in '{combo_name}', got {type(combo_params).__name__}"
                                     errorFlag = True
@@ -319,46 +325,51 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
                                 # for each combo params, variable mapping should be called
                                 # The return variable should be added without changing combo_params during iteration
                                 mapped_combo_params = {}
+
                                 for key, value in combo_params.items():
                                     return_variable = variable_mapping.get_return_variable(core_service=workFlowName, process_type=process_type, key=key)
-                                    print(workFlowName,process_type,key)
-                                    print("return_variable",return_variable)
+                                    # print(workFlowName,process_type,key)
+                                    # print("return_variable",return_variable)
                                     if return_variable:
-                                        print("Adding ",return_variable)
+                                        # print("Adding ",return_variable)
                                         mapped_combo_params[return_variable] = value
+                                    
+
 
                                 # combo params should be merged with params and passed to the query execution
                                 merged_params = {**params, **mapped_combo_params}
-                                print(f"Before: {datetime.now()}")
+                                merged_params["iterate2"] = row_number
+                                # print(f"Before: {datetime.now()}")
                                 query_result = await execute_query(cursor, service_query, merged_params)
-                                print(f"After: {datetime.now()}")
+                                # print(f"After: {datetime.now()}")
 
+                                row_number += 1
                                 # if the query type is validation then count should be extracted
                                 if query_type == 'Validation':
                                     count = get_validation_status(query_result)
-                                    print("Validation count:", count)
+                                    # print("Validation count:", count)
                                     if count == 0:
                                         result["strFailureMsg"] = await fetch_error_message(cursor, error_id, merged_params)
-                                        print("Validation failed", error_id, result["strFailureMsg"])
+                                        # print("Validation failed", error_id, result["strFailureMsg"])
                                         errorFlag = True
                                         break
                         else:
-                            print(f"Before: {datetime.now()}")
+                            # print(f"Before: {datetime.now()}")
                             query_result = await execute_query(cursor, service_query, params)
-                            print(f"After: {datetime.now()}")
+                            # print(f"After: {datetime.now()}")
                             if query_type == 'Validation':
                                 count = get_validation_status(query_result)
-                                print("Validation count:", count)
+                                # print("Validation count:", count)
                                 if count == 0:
                                     result["strFailureMsg"] = await fetch_error_message(cursor, error_id, params)
-                                    print("Validation failed", error_id, result["strFailureMsg"])
+                                    # print("Validation failed", error_id, result["strFailureMsg"])
                                     errorFlag = True
                                     break
 
 
                         if process_type == "HdrFetch":
                             # result["hdrcache"].extend(query_result["rows"])
-                            print("HdrFetch result", query_result["rows"])
+                            # print("HdrFetch result", query_result["rows"])
                             if len(query_result["rows"]) > 0:
                                 result["hdrcache"][0].update(query_result["rows"][0])                            
 
@@ -377,13 +388,13 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
                                 result["strSuccessMsg"] = f"Success message not found for success ID: {success_id}"
 
                     # COMMIT or ROLLBACK inside the cursor block
-                    print("Execution completed")
+                    # print("Execution completed")
 
                     if errorFlag:
-                        print(f"Before rollback autocommit={conn.autocommit}")
-                        print("Executing rollback due to error")
+                        # print(f"Before rollback autocommit={conn.autocommit}")
+                        # print("Executing rollback due to error")
                         await conn.rollback()
-                        print("Rollback completed")
+                        # print("Rollback completed")
                     else:
                         await conn.commit()
 
