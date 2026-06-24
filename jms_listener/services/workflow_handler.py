@@ -101,25 +101,25 @@ async def fetch_rows_as_dicts(cursor) -> list[dict]:
     cursor.prefetchrows = 100
     columns = [get_column_name(column) for column in cursor.description]
     result = []
-    # while True:
-    #     batch = await cursor.fetchmany(500)
-    #     if not batch:
-    #         break
-    #     for row in batch:
-    #         result.append({
-    #             columns[i]: (
-    #                 row[i] if row[i] is not None else ""
-    #             )
-    #             for i in range(len(columns))
-    #         })
-    batch = await cursor.fetchmany(100)
-    for row in batch:
-        result.append({
-            columns[i]: (
-                row[i] if row[i] is not None else ""
-            )
-            for i in range(len(columns))
-        })
+    while True:
+        batch = await cursor.fetchmany(500)
+        if not batch:
+            break
+        for row in batch:
+            result.append({
+                columns[i]: (
+                    row[i] if row[i] is not None else ""
+                )
+                for i in range(len(columns))
+            })
+    # batch = await cursor.fetchmany(100)
+    # for row in batch:
+    #     result.append({
+    #         columns[i]: (
+    #             row[i] if row[i] is not None else ""
+    #         )
+    #         for i in range(len(columns))
+    #     })
 
 
     return result
