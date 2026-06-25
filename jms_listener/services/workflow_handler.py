@@ -6,6 +6,7 @@ from core.process_types import ProcessType
 from core.variable_mapping import variable_mapping
 from utils.db.pool_manager import PoolManager
 from utils.db.query_loader import sql
+from utils.db.dyn_query_loader import dyn_sql
 import uuid
 
 logger = logging.getLogger(__name__) 
@@ -297,7 +298,7 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
 
                         if process_type not in ['HdrProcess', 'HdrFetch',
                                                 'ErrorCheck', 'ebPAC', 'ebpac1',
-                                                'email', 'UID', 'ebpac'] \
+                                                'email', 'UID', 'ebpac','DynMTLFetch'] \
                                                 and query_type in ['Validation', 'DML']:
                             # get the combo name and extract the array from params
                             if combo_name == "x":
@@ -353,7 +354,49 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
                                         # print("Validation failed", error_id, result["strFailureMsg"])
                                         errorFlag = True
                                         break
+
                         else:
+                            if process_type == "DynMTLFetch":
+                                dyn_core_query = dyn_sql.get(workFlowName)
+                                dyn_core_query = preprocess_query(dyn_core_query, params)
+
+                                if not dyn_core_query.strip().upper().startswith("SELECT"):
+                                    result["strFailureMsg"] = f"Core query for workflow '{workFlowName}' must be a SELECT statement."
+                                    return result
+                                
+                                # print("dyn_core_query", dyn_core_query)
+                                dyn_query_result = await execute_query(cursor, dyn_core_query, params)
+                                
+                                dyn_where_conditions = dyn_query_result["rows"]
+                                # print("dyn_where_conditions", dyn_where_conditions)
+                                
+
+                                where_statement = ""
+
+                                for where_condition in dyn_where_conditions:
+                                    query_id = where_condition.get("QUERYID")
+                                    control_id = where_condition.get("CONTROL_ID")
+                                    operator = where_condition.get("OPERATOR")
+                                    seqno = where_condition.get("SEQNO")
+                                    groupname = where_condition.get("GROUPNAME")
+                                    servicename = where_condition.get("SERVICENAME")
+                                    column_name = where_condition.get("COLUMN_NAME")
+                                    default_value = where_condition.get("DEFAULT_VALUE")
+
+                                    # print("control_id", control_id, "operator", operator,params.get(control_id))
+                                    
+                                    if params.get(control_id) is not None and params.get(control_id) != "" and params.get(control_id) != default_value:
+                                        print("Adding where condition for control_id", control_id, "operator", operator, f"value xx{params.get(control_id)}xx default value {default_value}" )
+                                        if operator == "LIKE":
+                                            where_statement += f" AND {column_name} LIKE '%{params.get(control_id)}%'"
+                                        elif operator == "APPEND":
+                                            where_statement += f"{column_name}"
+                                        elif operator == "IN":
+                                            where_statement += f" AND {column_name} IN ({params.get(control_id)})"
+
+                                print("Dynamic where_statement", where_statement)
+                                service_query = service_query + " " + where_statement
+
                             # print(f"Before: {datetime.now()}")
                             query_result = await execute_query(cursor, service_query, params)
                             # print(f"After: {datetime.now()}")

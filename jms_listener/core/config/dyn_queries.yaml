@@ -1,0 +1,14 @@
+queries:
+  TMSCoreTransportTS: |
+    select 
+        QUERYID,
+        CONTROL_ID,
+        OPERATOR,
+        SEQNO,
+        GROUPNAME,
+        SERVICENAME,
+        COLUMN_NAME,
+        DEFAULT_VALUE
+    from TMS_DYNWHERE_QUERYTABLE
+    WHERE SERVICENAME='#methodName#'
+    order by seqno
