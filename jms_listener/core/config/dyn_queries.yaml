@@ -12,3 +12,59 @@ queries:
     from TMS_DYNWHERE_QUERYTABLE
     WHERE SERVICENAME='#methodName#'
     order by seqno
+
+  CoreInspectionService: |
+    select 
+        QUERYID,
+        CONTROL_ID,
+        OPERATOR,
+        SEQNO,
+        GROUPNAME,
+        SERVICENAME,
+        COLUMN_NAME,
+        DEFAULT_VALUE
+    from INS_DYNWHERE_QUERYTABLE
+    WHERE SERVICENAME='#methodName#'
+    order by seqno
+
+  CoreInspectionsService: |
+  select 
+      QUERYID,
+      CONTROL_ID,
+      OPERATOR,
+      SEQNO,
+      GROUPNAME,
+      SERVICENAME,
+      COLUMN_NAME,
+      DEFAULT_VALUE
+  from INS_DYNWHERE_QUERYTABLE
+  WHERE SERVICENAME='#methodName#'
+  order by seqno
+
+  CoreJourneyPlanService: |
+    select 
+        QUERYID,
+        CONTROL_ID,
+        OPERATOR,
+        SEQNO,
+        GROUPNAME,
+        SERVICENAME,
+        COLUMN_NAME,
+        DEFAULT_VALUE
+    from JP_DYNWHERE_QUERYTABLE
+    WHERE SERVICENAME='#methodName#'
+    order by seqno    
+
+  TRPLISTCoreTripListTS: |
+    select 
+        QUERYID,
+        CONTROL_ID,
+        OPERATOR,
+        SEQNO,
+        GROUPNAME,
+        SERVICENAME,
+        COLUMN_NAME,
+        DEFAULT_VALUE
+    from TRIPLIST_DYN_QUERYTABLE
+    WHERE SERVICENAME='#methodName#'
+    order by seqno        
