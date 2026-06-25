@@ -28,18 +28,18 @@ queries:
     order by seqno
 
   CoreInspectionsService: |
-  select 
-      QUERYID,
-      CONTROL_ID,
-      OPERATOR,
-      SEQNO,
-      GROUPNAME,
-      SERVICENAME,
-      COLUMN_NAME,
-      DEFAULT_VALUE
-  from INS_DYNWHERE_QUERYTABLE
-  WHERE SERVICENAME='#methodName#'
-  order by seqno
+    select 
+        QUERYID,
+        CONTROL_ID,
+        OPERATOR,
+        SEQNO,
+        GROUPNAME,
+        SERVICENAME,
+        COLUMN_NAME,
+        DEFAULT_VALUE
+    from INS_DYNWHERE_QUERYTABLE
+    WHERE SERVICENAME='#methodName#'
+    order by seqno
 
   CoreJourneyPlanService: |
     select 
