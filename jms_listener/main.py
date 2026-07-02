@@ -10,6 +10,7 @@ import yaml
 import logging.config
 from pathlib import Path
 from api.routes.JMSServlet import router as jms_router
+from api.routes.file_handler import router as file_router
 from contextlib import asynccontextmanager
 from utils.db.pool_manager import PoolManager
 import uvicorn
@@ -32,6 +33,7 @@ logger = logging.getLogger(__name__)
 
 routes = [
     jms_router,
+    file_router,
 ]
 
 @asynccontextmanager
