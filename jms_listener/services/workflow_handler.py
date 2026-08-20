@@ -277,6 +277,8 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
                             guid = str(uuid.uuid4())
                             params["guid"] = guid
                             params["iUID"] = guid
+                            result["guid"]  = guid
+
 
                             if success_id != "" and success_id != "x":
                                 success_message = await fetch_error_message(cursor, success_id, params)
@@ -420,7 +422,11 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
                             result["grid_array"].append({combo_name: query_result["rows"]})
 
                         if process_type == "Init":
-                            result["combo_array"].append({combo_name: query_result["rows"]})
+                            # if combo_name is ReportName, then the result should be added to grid_array instead of combo_array
+                            if combo_name == "ReportName":
+                                result["ReportName"]= query_result["rows"][0]["strReportInFile"]
+                            else:
+                                result["combo_array"].append({combo_name: query_result["rows"]})
 
                         # Adding Success Message
                         if success_id != "" and success_id != "x":
