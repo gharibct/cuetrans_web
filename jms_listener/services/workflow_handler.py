@@ -420,6 +420,9 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
 
                         if process_type == "MTLFetch":
                             result["grid_array"].append({combo_name: query_result["rows"]})
+                        
+                        if process_type == "DynMTLFetch":
+                            result["grid_array"].append({combo_name: query_result["rows"]})
 
                         if process_type == "Init":
                             # if combo_name is ReportName, then the result should be added to grid_array instead of combo_array
