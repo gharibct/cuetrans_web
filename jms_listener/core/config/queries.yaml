@@ -610,7 +610,7 @@ queries:
 
   TMSCoreTransportTS: |
       select Servicequery As Servicequery,
-            Processtype As Processtype,
+            nvl(N_PROCESSTYPE,PROCESSTYPE) as PROCESSTYPE,
             Nvl(Comboname,'x') As Comboname,
             querytype as QUERYTYPE,
             nvl(errorid,'x') AS ERRORID,
