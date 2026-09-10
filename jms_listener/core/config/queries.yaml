@@ -69,7 +69,7 @@ queries:
 
   CoreConsequencemanagement: |
     select SERVICEQUERY as SERVICEQUERY,
-          PROCESSTYPE as PROCESSTYPE,
+          nvl(N_PROCESSTYPE,PROCESSTYPE) as PROCESSTYPE,
           NVL(COMBONAME,'x') as COMBONAME,
           QUERYTYPE as QUERYTYPE,
           NVL(ERRORID,'x') as ERRORID,
@@ -82,7 +82,7 @@ queries:
 
   CoreConsignment: |
     select Servicequery as Servicequery,
-          Processtype as Processtype,
+          nvl(N_PROCESSTYPE,PROCESSTYPE) as PROCESSTYPE,
           Nvl(Comboname,'x') as Comboname,
           querytype as QUERYTYPE,
           nvl(errorid,'x') AS ERRORID,
