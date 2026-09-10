@@ -264,7 +264,7 @@ queries:
 
   CoreJourneyPlanService: |
     SELECT servicequery as SERVICEQUERY,
-          processtype as PROCESSTYPE,
+          nvl(N_PROCESSTYPE,PROCESSTYPE) as PROCESSTYPE,
           NVL(comboname,'x') as COMBONAME,
           querytype as QUERYTYPE,
           NVL(errorid,'x') as ERRORID,
@@ -583,7 +583,7 @@ queries:
 
   SERCoreServiceGroupTS: |
       select Servicequery As Servicequery,
-            Processtype As Processtype,
+            nvl(N_PROCESSTYPE,PROCESSTYPE) as PROCESSTYPE,
             Nvl(Comboname,'x') As Comboname,
             querytype as QUERYTYPE,
             nvl(errorid,'x') AS ERRORID,
@@ -597,7 +597,7 @@ queries:
 
   TARCoreTariffServiceTS: |
       select Servicequery As Servicequery,
-            Processtype As Processtype,
+            nvl(N_PROCESSTYPE,PROCESSTYPE) as PROCESSTYPE,
             Nvl(Comboname,'x') As Comboname,
             querytype as QUERYTYPE,
             nvl(errorid,'x') AS ERRORID,
@@ -624,7 +624,7 @@ queries:
 
   TRPLISTCoreTripListTS: |
       select Servicequery As Servicequery,
-            Processtype As Processtype,
+            nvl(N_PROCESSTYPE,PROCESSTYPE) as PROCESSTYPE,
             Nvl(Comboname,'x') As Comboname,
             querytype as QUERYTYPE,
             nvl(errorid,'x') AS ERRORID,
