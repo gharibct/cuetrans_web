@@ -2,11 +2,13 @@ from datetime import datetime
 import json
 import logging
 import re
+from turtle import left
 from core.process_types import ProcessType
 from core.variable_mapping import variable_mapping
 from utils.db.pool_manager import PoolManager
 from utils.db.query_loader import sql
 from utils.db.dyn_query_loader import dyn_sql
+from utils.db.numbering_loader import numbering
 import uuid
 
 logger = logging.getLogger(__name__) 
@@ -154,6 +156,23 @@ async def execute_query(cursor, query: str, params: dict):
     }
 
 
+async def execute_numbering_series(cursor, params: dict) -> str:
+    """Call GET_NUMBERING_SERIES and return the generated transaction number.
+
+    The last proc argument is OUT; the rest are taken from params.
+    """
+    tran_no = cursor.var(str, 4000)
+    await cursor.callproc("GET_NUMBERING_SERIES", [
+        params.get("iUID"),
+        params.get("strTranType"),
+        params.get("dtTranDate"),
+        params.get("strOrganisationId"),
+        params.get("strUserId"),
+        tran_no,
+    ])
+    return tran_no.getvalue()
+
+
 async def fetch_error_message(cursor, error_id: str, params: dict) -> str | None:
     if not error_id or error_id == "x":
         return "Error occurred but no error ID provided"
@@ -231,6 +250,7 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
                 async with conn.cursor() as cursor:
                     # cursor.arraysize = 10000
                     # MethodName which is required for execution, is alreadly present in the params
+                    print("core_query", core_query)
                     repository_result = await execute_query(cursor, core_query, params)
 
                     repository_queries = repository_result["rows"]
@@ -298,11 +318,29 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
                                 result["strSuccessMsg"] = f"Success message not found for success ID: {success_id}"
                             continue
 
+                        # compare first 6 letter of process_type, if it is "NumGen" then execute the numbering series and add the generated number to params
+                        if process_type and process_type[:6] == "NumGen":
+                            # numbering.yaml maps NumGen_<type> -> {strTranType, strTranNo}:
+                            # strTranType is the SP input, strTranNo the param key that
+                            # should receive the generated number.
+                            numbering_cfg = numbering.get(process_type)
+                            if numbering_cfg.get("strTranType"):
+                                params["strTranType"] = numbering_cfg["strTranType"]
+
+                            # Number generation is handled by the ebpac SP GET_NUMBERING_SERIES.
+                            # Its last argument is OUT - store the generated number in params.
+                            tran_no = await execute_numbering_series(cursor, params)
+                            params["strTranNo"] = tran_no
+                            if numbering_cfg.get("strTranNo"):
+                                params[numbering_cfg["strTranNo"]] = tran_no
+                            continue
+
                         if process_type not in ['HdrProcess', 'HdrFetch',
                                                 'ErrorCheck', 'ebPAC', 'ebpac1',
                                                 'email', 'UID', 'ebpac','DynMTLFetch'] \
                                                 and query_type in ['Validation', 'DML']:
                             # get the combo name and extract the array from params
+                            # This look is for doing MTL Process. 
                             if combo_name == "x":
                                 combo_name = process_type
                             combo_array = params.get(combo_name + "_array", [])
@@ -399,7 +437,7 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
                                 print("Dynamic where_statement", where_statement)
                                 service_query = service_query + " " + where_statement
 
-                            # print(f"Before: {datetime.now()}")
+                            # Actual query execution for non-MTL processes
                             query_result = await execute_query(cursor, service_query, params)
                             # print(f"After: {datetime.now()}")
                             if query_type == 'Validation':
@@ -410,7 +448,8 @@ async def handle_workflow(workFlowName: str, workFlowParams: str):
                                     # print("Validation failed", error_id, result["strFailureMsg"])
                                     errorFlag = True
                                     break
-
+                            result["grid_array"].append({combo_name: query_result["rows"]})
+                            
 
                         if process_type == "HdrFetch":
                             # result["hdrcache"].extend(query_result["rows"])

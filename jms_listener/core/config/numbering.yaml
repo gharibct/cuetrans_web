@@ -1,0 +1,34 @@
+numbering:
+  NumGen_CUST_REGN:
+    strTranType: CUST_REGN
+    strTranNo: strCustomerCode
+  NumGen_TRIPSHEET:
+    strTranType: TRIPSHEET
+    strTranNo: strTripSheetNo
+  NumGen_SREQ:
+    strTranType: SREQ
+    strTranNo: strVehicleRequestNo
+  NumGen_CAR:
+    strTranType: CAR
+    strTranNo: strContractNo
+  NumGen_CUST:
+    strTranType: CUST
+    strTranNo: strContractNo
+  NumGen_LOAD:
+    strTranType: LOAD
+    strTranNo: strLoadNo
+  NumGen_SHIPMENT:
+    strTranType: SHIPMENT
+    strTranNo: strShipmentNo
+  NumGen_TRANVEH:
+    strTranType: TRANVEH
+    strTranNo: strRequestNo
+  NumGen_CONSEQ:
+    strTranType: CONSEQ
+    strTranNo: strConseqCode
+  NumGen_INS:
+    strTranType: INS
+    strTranNo: strInspectionNo
+  NumGen_JP:
+    strTranType: JP
+    strTranNo: strJourneyPlanNo
