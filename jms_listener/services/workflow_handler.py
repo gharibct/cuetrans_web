@@ -2,7 +2,7 @@ from datetime import datetime
 import json
 import logging
 import re
-from turtle import left
+
 from core.process_types import ProcessType
 from core.variable_mapping import variable_mapping
 from utils.db.pool_manager import PoolManager
