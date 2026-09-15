@@ -19,7 +19,7 @@ numbering:
     strTranNo: strLoadNo
   NumGen_SHIPMENT:
     strTranType: SHIPMENT
-    strTranNo: strShipmentNo
+    strTranNo: strShippmentNo
   NumGen_TRANVEH:
     strTranType: TRANVEH
     strTranNo: strRequestNo
