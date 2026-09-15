@@ -69,6 +69,7 @@ class PoolManager:
                 # Optional: Set session preferences for better performance
                 await cursor.execute("ALTER SESSION SET NLS_SORT = BINARY_CI")
                 await cursor.execute("ALTER SESSION SET NLS_COMP = LINGUISTIC")
+                await cursor.execute("ALTER SESSION SET NLS_DATE_FORMAT = 'DD-MM-YYYY'")
                 
                 logger.debug("Connection warmed up successfully")
         except Exception as e:
